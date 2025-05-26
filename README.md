@@ -15,8 +15,7 @@ Chạy trên Cloudflare Worker, đơn giản hoạt động như một proxy cho
 
 ## Tính năng
 
-- Proxy minh bạch cho tất cả các phương thức của Telegram Bot API
-- Xử lý bảo mật token bot
+- Chạy tất cả các phương thức của Telegram Bot API
 - Hỗ trợ CORS đầy đủ cho các ứng dụng web
 - Hiệu suất cao với mạng lưới toàn cầu của Cloudflare
 - Trang tài liệu tích hợp sẵn
@@ -31,6 +30,7 @@ Chạy trên Cloudflare Worker, đơn giản hoạt động như một proxy cho
 2. Hướng dẫn tạo Cloudflare Worker
 ```https://dev.to/andyjessop/setting-up-a-new-cloudflare-worker-with-a-custom-domain-fl9```
 3. Deploy
+   Coppy nội dung telegram-bot-proxy.js dán vào phần edit code và deploy
 
 ## Cách sử dụng
 
