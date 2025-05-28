@@ -87,11 +87,8 @@ fetch('https://{YOUR_WORKER_URL}/bot{YOUR_BOT_TOKEN}/sendMessage', {
 </html>`;
 
 async function handleRequest(request) {
-  // Clone the request to modify it
-  const requestClone = new Request(request);
   const url = new URL(request.url);
 
-  // If accessing the root path, show documentation
   if (url.pathname === '/' || url.pathname === '') {
     return new Response(DOC_HTML, {
       headers: {
@@ -104,48 +101,44 @@ async function handleRequest(request) {
   // Extract the bot token and method from the URL path
   // Expected format: /bot{token}/{method}
   const pathParts = url.pathname.split('/').filter(Boolean);
-  
   if (pathParts.length < 2 || !pathParts[0].startsWith('bot')) {
     return new Response('Invalid bot request format', { status: 400 });
   }
 
   // Reconstruct the Telegram API URL
-  const telegramUrl = new URL(
-    `${TELEGRAM_API_BASE}${url.pathname}${url.search}`
-  );
+  const telegramUrl = `${TELEGRAM_API_BASE}${url.pathname}${url.search}`;
 
   // Create headers for the new request
   const headers = new Headers(request.headers);
   
   // Forward the request to Telegram API
-  const telegramRequest = new Request(telegramUrl, {
-    method: requestClone.method,
-    headers: headers,
-    body: requestClone.method !== 'GET' ? await request.clone().arrayBuffer() : undefined,
+  let body = undefined;
+  if (request.method !== 'GET' && request.method !== 'HEAD') {
+    try {
+      body = await request.arrayBuffer();
+    } catch (err) {
+      return new Response(`Failed to read request body: ${err.message}`, { status: 400 });
+    }
+  }
+
+  const proxyReq = new Request(telegramUrl, {
+    method: request.method,
+    headers: request.headers,
+    body,
     redirect: 'follow',
   });
 
   try {
-    const response = await fetch(telegramRequest);
-    
-    // Create a new response with the Telegram API response
-    const newResponse = new Response(response.body, {
-      status: response.status,
-      statusText: response.statusText,
-      headers: response.headers,
-    });
-
-    // Add CORS headers to allow requests from any origin
-    newResponse.headers.set('Access-Control-Allow-Origin', '*');
-    newResponse.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    newResponse.headers.set('Access-Control-Allow-Headers', 'Content-Type');
-
-    return newResponse;
-  } catch (error) {
-    return new Response(`Error proxying request: ${error.message}`, { status: 500 });
+    const tgRes = await fetch(proxyReq);
+    const res = new Response(tgRes.body, tgRes); // Copy response as-is
+    res.headers.set('Access-Control-Allow-Origin', '*');
+    res.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.headers.set('Access-Control-Allow-Headers', 'Content-Type');
+    return res;
+  } catch (err) {
+    return new Response(`Error proxying request: ${err.message}`, { status: 500 });
   }
 }
-
 // Handle OPTIONS requests for CORS
 function handleOptions(request) {
   const corsHeaders = {
