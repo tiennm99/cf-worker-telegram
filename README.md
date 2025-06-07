@@ -20,6 +20,8 @@ Chạy trên Cloudflare Worker, đơn giản hoạt động như một proxy cho
 - Hiệu suất cao với mạng lưới toàn cầu của Cloudflare
 - Trang tài liệu tích hợp sẵn
 - Hỗ trợ tất cả các phương thức HTTP (GET, POST, PUT, DELETE)
+- Gửi tệp tin bằng `multipart/form-data` (ví dụ: `sendPhoto`, `sendDocument`)
+- Xử lý biểu tượng cảm xúc và ký tự đặc biệt ổn định hơn
 
 ## Cài đặt
 
