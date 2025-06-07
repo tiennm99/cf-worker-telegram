@@ -131,9 +131,14 @@ async function handleRequest(request) {
   try {
     const tgRes = await fetch(proxyReq);
     const res = new Response(tgRes.body, tgRes); // Copy response as-is
+    const reqAllowHeaders = request.headers.get('Access-Control-Request-Headers');
+    const allowHeaders = reqAllowHeaders ? reqAllowHeaders : 'Content-Type';
     res.headers.set('Access-Control-Allow-Origin', '*');
-    res.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.headers.set('Access-Control-Allow-Headers', 'Content-Type');
+    res.headers.set(
+      'Access-Control-Allow-Methods',
+      'GET, POST, PUT, DELETE, OPTIONS, HEAD'
+    );
+    res.headers.set('Access-Control-Allow-Headers', allowHeaders);
     return res;
   } catch (err) {
     return new Response(`Error proxying request: ${err.message}`, { status: 500 });
@@ -141,10 +146,13 @@ async function handleRequest(request) {
 }
 // Handle OPTIONS requests for CORS
 function handleOptions(request) {
+  const reqAllowHeaders = request.headers.get('Access-Control-Request-Headers');
+  const allowHeaders = reqAllowHeaders ? reqAllowHeaders : 'Content-Type';
+
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, HEAD',
+    'Access-Control-Allow-Headers': allowHeaders,
     'Access-Control-Max-Age': '86400',
   };
 
