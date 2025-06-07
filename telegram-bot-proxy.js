@@ -108,25 +108,27 @@ async function handleRequest(request) {
   // Reconstruct the Telegram API URL
   const telegramUrl = `${TELEGRAM_API_BASE}${url.pathname}${url.search}`;
 
-  // Create headers for the new request
+  // Clone request headers so we can safely modify them
   const headers = new Headers(request.headers);
-  
-  // Forward the request to Telegram API
-  let body = undefined;
-  if (request.method !== 'GET' && request.method !== 'HEAD') {
-    try {
-      body = await request.arrayBuffer();
-    } catch (err) {
-      return new Response(`Failed to read request body: ${err.message}`, { status: 400 });
-    }
+
+  // Ensure JSON requests explicitly use UTF-8 to avoid issues with emoji or
+  // other special characters
+  const contentType = headers.get('Content-Type');
+  if (contentType && contentType.startsWith('application/json') && !contentType.includes('charset')) {
+    headers.set('Content-Type', 'application/json; charset=UTF-8');
   }
 
-  const proxyReq = new Request(telegramUrl, {
+  const init = {
     method: request.method,
-    headers: request.headers,
-    body,
+    headers,
     redirect: 'follow',
-  });
+  };
+  if (request.method !== 'GET' && request.method !== 'HEAD') {
+    init.body = request.body;
+  }
+
+  // Forward the request to Telegram API, streaming the body when present.
+  const proxyReq = new Request(telegramUrl, init);
 
   try {
     const tgRes = await fetch(proxyReq);
