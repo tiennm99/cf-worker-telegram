@@ -98,10 +98,17 @@ async function handleRequest(request) {
     });
   }
 
-  // Extract the bot token and method from the URL path
-  // Expected format: /bot{token}/{method}
+  // Extract path segments to validate the request format.
+  // Accept either /bot{token}/{method} or /file/bot{token}/{file_path}
   const pathParts = url.pathname.split('/').filter(Boolean);
-  if (pathParts.length < 2 || !pathParts[0].startsWith('bot')) {
+  if (pathParts.length < 2) {
+    return new Response('Invalid request format', { status: 400 });
+  }
+  if (pathParts[0] === 'file') {
+    if (pathParts.length < 3 || !pathParts[1].startsWith('bot')) {
+      return new Response('Invalid file request format', { status: 400 });
+    }
+  } else if (!pathParts[0].startsWith('bot')) {
     return new Response('Invalid bot request format', { status: 400 });
   }
 

@@ -22,6 +22,7 @@ Chạy trên Cloudflare Worker, đơn giản hoạt động như một proxy cho
 - Hỗ trợ tất cả các phương thức HTTP (GET, POST, PUT, DELETE)
 - Gửi tệp tin bằng `multipart/form-data` (ví dụ: `sendPhoto`, `sendDocument`)
 - Xử lý biểu tượng cảm xúc và ký tự đặc biệt ổn định hơn
+- Tải tệp tin từ đường dẫn `/file/bot{TOKEN}/<file_path>`
 
 ## Cài đặt
 
@@ -64,6 +65,12 @@ fetch('https://{URL_WORKER_CỦA_BẠN}/bot{TOKEN_BOT_CỦA_BẠN}/sendMessage',
 })
 .then(response => response.json())
 .then(data => console.log(data));
+```
+
+### Lấy file từ Telegram
+
+```
+https://{URL_WORKER_CỦA_BẠN}/file/bot{TOKEN_BOT_CỦA_BẠN}/<file_path>
 ```
 
 ## 🔒 Bảo mật
