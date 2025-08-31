@@ -1,0 +1,9 @@
+name = "cf-worker-telegram"
+main = "telegram-bot-proxy.js"
+compatibility_date = "2023-12-07"
+
+[env.production]
+name = "cf-worker-telegram"
+
+[env.staging]
+name = "cf-worker-telegram-staging"
